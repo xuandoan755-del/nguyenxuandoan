@@ -1,0 +1,40 @@
+# Logs & Environment
+*.log
+*.env
+.env
+.DS_Store
+Thumbs.db
+
+# IDE & Editor files
+.idea/
+.vscode/
+.vs/
+*.iml
+*.ipr
+*.iws
+
+# Frontend (Flutter / Dart / Android)
+frontend/.dart_tool/
+frontend/.flutter-plugins-dependencies
+frontend/.pub-cache/
+frontend/.pub/
+frontend/build/
+frontend/coverage/
+frontend/.widget_preview/
+frontend/android/.gradle/
+frontend/android/local.properties
+frontend/android/app/debug/
+frontend/android/app/profile/
+frontend/android/app/release/
+*.symbols
+*.map.json
+
+# Backend (Node.js / Express)
+backend/node_modules/
+backend/npm-debug.log*
+backend/yarn-debug.log*
+backend/yarn-error.log*
+backend/.env
+backend/data/*.db
+backend/data/*.sqlite
+backend/dist/

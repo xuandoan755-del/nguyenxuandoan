@@ -1,0 +1,168 @@
+const fs = require('fs');
+const path = require('path');
+
+const DATA_DIR = path.join(__dirname, '..', 'data');
+const DB_FILE = path.join(DATA_DIR, 'database.json');
+
+const INITIAL_DATA = {
+  users: [
+    {
+      id: 'u_admin',
+      username: 'admin',
+      email: 'admin.baoan.app@gmail.com',
+      password: 'admin123',
+      fullName: 'Quản trị viên Hệ thống',
+      phone: '0901234567',
+      role: 'admin',
+      isLocked: false,
+      createdAt: '2026-10-21T08:00:00.000Z'
+    },
+    {
+      id: 'u_staff',
+      username: 'staff',
+      email: 'nhanvien.baoan.app@gmail.com',
+      password: 'staff123',
+      fullName: 'Kỹ thuật viên Hỗ trợ',
+      phone: '0912345678',
+      role: 'staff',
+      isLocked: false,
+      createdAt: '2026-10-21T08:30:00.000Z'
+    },
+    {
+      id: 'u_customer',
+      username: 'khachhang',
+      email: 'phuhuynh.baoan.app@gmail.com',
+      password: 'customer123',
+      fullName: 'Phụ huynh Nguyễn Văn Nam',
+      phone: '0988776655',
+      role: 'customer',
+      isLocked: false,
+      createdAt: '2026-10-21T09:00:00.000Z'
+    }
+  ],
+  children: [
+    {
+      id: 'c_01',
+      parentId: 'u_customer',
+      name: 'Bé An (Minh An)',
+      age: 8,
+      avatar: '👦',
+      isSafe: true,
+      screenTimeMinutesToday: 95,
+      lastActive: '2026-10-22T04:30:00.000Z',
+      deviceModel: 'Xiaomi Redmi Note 12'
+    },
+    {
+      id: 'c_02',
+      parentId: 'u_customer',
+      name: 'Bé Linh (Hà Linh)',
+      age: 12,
+      avatar: '👧',
+      isSafe: false,
+      screenTimeMinutesToday: 180,
+      lastActive: '2026-10-22T04:55:00.000Z',
+      deviceModel: 'Samsung Galaxy A14'
+    }
+  ],
+  rules: [
+    {
+      id: 'r_01',
+      childId: 'c_01',
+      appName: 'YouTube Kids',
+      packageName: 'com.google.android.apps.youtube.kids',
+      timeLimitMinutes: 60,
+      isLocked: false,
+      isEnabled: true,
+      category: 'Giải trí'
+    },
+    {
+      id: 'r_02',
+      childId: 'c_01',
+      appName: 'TikTok',
+      packageName: 'com.zhiliaoapp.musically',
+      timeLimitMinutes: 0,
+      isLocked: true,
+      isEnabled: true,
+      category: 'Mạng xã hội'
+    },
+    {
+      id: 'r_03',
+      childId: 'c_02',
+      appName: 'Roblox',
+      packageName: 'com.roblox.client',
+      timeLimitMinutes: 45,
+      isLocked: false,
+      isEnabled: true,
+      category: 'Trò chơi'
+    }
+  ],
+  tickets: [
+    {
+      id: 't_01',
+      customerId: 'u_customer',
+      customerName: 'Phụ huynh Nguyễn Văn Nam',
+      title: 'Hỗ trợ chặn lọc nội dung video YouTube quá giờ',
+      description: 'Tôi muốn nhờ nhân viên cấu hình giới hạn kênh tự động cho bé 8 tuổi.',
+      status: 'inProgress',
+      staffNotes: 'Đang hướng dẫn khách hàng bật tính năng lọc danh mục an toàn.',
+      createdAt: '2026-10-22T02:15:00.000Z'
+    },
+    {
+      id: 't_02',
+      customerId: 'u_customer',
+      customerName: 'Phụ huynh Nguyễn Văn Nam',
+      title: 'Thiết bị của bé Linh báo tín hiệu định vị không ổn định',
+      description: 'Nhờ nhân viên kiểm tra kết nối định vị GPS trên thiết bị con.',
+      status: 'pending',
+      staffNotes: '',
+      createdAt: '2026-10-22T04:00:00.000Z'
+    }
+  ],
+  backups: [],
+  otps: {}
+};
+
+class DbService {
+  constructor() {
+    this._ensureDbExists();
+  }
+
+  _ensureDbExists() {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    if (!fs.existsSync(DB_FILE)) {
+      fs.writeFileSync(DB_FILE, JSON.stringify(INITIAL_DATA, null, 2), 'utf8');
+    }
+  }
+
+  read() {
+    this._ensureDbExists();
+    try {
+      const data = fs.readFileSync(DB_FILE, 'utf8');
+      return JSON.parse(data);
+    } catch (err) {
+      console.error('Lỗi đọc database.json, phục hồi dữ liệu ban đầu:', err);
+      this.write(INITIAL_DATA);
+      return INITIAL_DATA;
+    }
+  }
+
+  write(data) {
+    this._ensureDbExists();
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
+  }
+
+  getCollection(name) {
+    const db = this.read();
+    return db[name] || [];
+  }
+
+  saveCollection(name, items) {
+    const db = this.read();
+    db[name] = items;
+    this.write(db);
+  }
+}
+
+module.exports = new DbService();
